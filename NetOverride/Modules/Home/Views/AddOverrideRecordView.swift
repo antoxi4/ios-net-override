@@ -71,9 +71,9 @@ struct AddOverrideRecordView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .toolbarBackground(Color("BgPrimary"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-        }
-        .onTapGesture {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
         }
         .presentationBackground(Color("BgPrimary"))
     }
