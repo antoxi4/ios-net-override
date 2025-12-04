@@ -9,6 +9,4 @@ import SwiftUI
 
 protocol RouteView: View {
     var appRouter: AppRouter { get }
-    
-    init(appRouter: AppRouter)
 }

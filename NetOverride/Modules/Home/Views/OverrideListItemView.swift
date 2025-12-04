@@ -14,6 +14,7 @@ struct OverrideListItemView: View {
     @Bindable var record: OverrideRecord
     @Binding var isOverrideEnabled: Bool
     let onEdit: (OverrideRecord) -> Void
+    let onDelete: (OverrideRecord) -> Void
     
     private var iconColor: Color {
         if (!isOverrideEnabled) {
@@ -60,7 +61,7 @@ struct OverrideListItemView: View {
             }
             
             Button(role: .destructive) {
-                modelContext.delete(record)
+                onDelete(record)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
