@@ -56,7 +56,6 @@ struct HomeView: RouteView {
 // MARK: Handlers
 private extension HomeView {
     private func showCreateModal() {
-        self.appRouter.route(to: .home)
         self.isCreateModalVisible = true
     }
     
