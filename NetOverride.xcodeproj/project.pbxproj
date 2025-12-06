@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA4F00432EE4B20700E55AE2 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4F00422EE4B20700E55AE2 /* AppConfig.swift */; };
+		AA4F00442EE4B20700E55AE2 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4F00422EE4B20700E55AE2 /* AppConfig.swift */; };
 		AA6731FA2EE38D830034BCE4 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6731F92EE38D830034BCE4 /* NetworkExtension.framework */; };
 		AA6732022EE38D830034BCE4 /* netextension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA6731F72EE38D830034BCE4 /* netextension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -37,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		AA30F1512EDCC7DD000854CD /* NetOverride.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetOverride.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA4F00422EE4B20700E55AE2 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		AA6731F72EE38D830034BCE4 /* netextension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = netextension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA6731F92EE38D830034BCE4 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -105,6 +108,7 @@
 		AA30F1482EDCC7DD000854CD = {
 			isa = PBXGroup;
 			children = (
+				AA4F00422EE4B20700E55AE2 /* AppConfig.swift */,
 				AA67320C2EE393310034BCE4 /* Shared */,
 				AA30F1532EDCC7DD000854CD /* NetOverride */,
 				AA6731FB2EE38D830034BCE4 /* netextension */,
@@ -248,6 +252,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA4F00432EE4B20700E55AE2 /* AppConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +260,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA4F00442EE4B20700E55AE2 /* AppConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
