@@ -66,7 +66,6 @@ class DNSProxy {
                 
                 let providerProtocol = NEDNSProxyProviderProtocol()
                 providerProtocol.providerBundleIdentifier = "xyz.yashyn.NetOverride.netextension"
-                providerProtocol.providerConfiguration = [:]
                 
                 manager.providerProtocol = providerProtocol
                 manager.isEnabled = true

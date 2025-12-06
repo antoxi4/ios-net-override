@@ -1,6 +1,6 @@
 //
 //  Log.swift
-//  Vault
+//  NetOverride
 //
 //  Created by Anton Yashyn on 09.08.2025.
 //

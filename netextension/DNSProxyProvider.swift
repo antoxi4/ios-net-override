@@ -11,9 +11,8 @@ import Foundation
 final class DNSProxyProvider: NEDNSProxyProvider {
     // MARK: - Properties
     private var domainMappings: [String: String] = [:]
-    private let appGroup = "group.xyz.yashyn.NetOverride"
-    private let recordsKey = "enabledOverrideRecords"
     private let fallbackDNS = "8.8.8.8"
+    private let dnsProxy = DNSProxy()
     
     // MARK: - Lifecycle
     override func startProxy(options: [String : Any]? = nil, completionHandler: @escaping (Error?) -> Void) {
@@ -39,18 +38,10 @@ final class DNSProxyProvider: NEDNSProxyProvider {
     
     // MARK: - Configuration
     private func loadDomainMappings() {
-        guard let defaults = UserDefaults(suiteName: appGroup),
-              let data = defaults.data(forKey: recordsKey) else {
-            Logger.info("⚠️ No domain mappings configured")
-            return
-        }
-        
         do {
-            let records = try PropertyListDecoder().decode([[String: String]].self, from: data)
+            let records = try dnsProxy.getStoredRecords()
             domainMappings = records.reduce(into: [:]) { result, record in
-                if let domain = record["domain"], let destination = record["destination"] {
-                    result[domain.lowercased()] = destination
-                }
+                result[record.domain.lowercased()] = record.destination
             }
             Logger.info("✅ Loaded \(domainMappings.count) domain mapping(s)")
         } catch {
@@ -261,7 +252,7 @@ private enum DNSResponseBuilder {
         response[6] = 0
         response[7] = 1     // ANCOUNT = 1
         
-        // Answer section
+        // Response section
         response.append(contentsOf: [0xc0, 0x0c])  // Name pointer
         response.append(contentsOf: [0x00, 0x01])  // Type A
         response.append(contentsOf: [0x00, 0x01])  // Class IN
