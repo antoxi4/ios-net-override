@@ -9,55 +9,46 @@ import Foundation
 import NetworkExtension
 
 class DNSProxy {
-    func getDNSProxyState() async throws -> DNSProxyState {
-        return await withUnsafeContinuation({ continuation in
-            NEDNSProxyManager.shared().loadFromPreferences { error in
-                DispatchQueue.main.async {
-                    let manager = NEDNSProxyManager.shared()
-                    if manager.isEnabled {
-                        continuation.resume(returning: .enabled)
-                    } else {
-                        continuation.resume(returning: .disabled)
-                    }
-                }
+    // MARK: - Properties
+    private static let appGroup = "group.xyz.yashyn.NetOverride"
+    private static let recordsKey = "enabledOverrideRecords"
+    
+    // MARK: - Public Methods
+    func getDNSProxyState() async -> DNSProxyState {
+        await withCheckedContinuation { continuation in
+            NEDNSProxyManager.shared().loadFromPreferences { _ in
+                let isEnabled = NEDNSProxyManager.shared().isEnabled
+                continuation.resume(returning: isEnabled ? .enabled : .disabled)
             }
-        })
+        }
     }
     
-    func storeRecords(records: [DNSRecord]) throws {
-        guard let sharedDefaults = UserDefaults(suiteName: DNSProxy.appGroup) else {
-            print("Failed to access shared UserDefaults")
-            return
+    func storeRecords(_ records: [DNSRecord]) throws {
+        guard let defaults = UserDefaults(suiteName: Self.appGroup) else {
+            throw DNSProxyError.sharedDefaultsUnavailable
         }
         
-        let recordsData = records.map { record in
-            [
-                "id": record.id,
-                "destination": record.destination,
-                "domain": record.domain
-            ]
-        }
-        let encoder = PropertyListEncoder()
-        let encodedData = try encoder.encode(recordsData)
+        let recordsData = records.map { [
+            "id": $0.id,
+            "destination": $0.destination,
+            "domain": $0.domain
+        ]}
         
-        
-        sharedDefaults.set(encodedData, forKey: "enabledOverrideRecords")
+        let encodedData = try PropertyListEncoder().encode(recordsData)
+        defaults.set(encodedData, forKey: Self.recordsKey)
     }
     
-    func getStoredRecords() throws -> [DNSRecord]  {
-        guard let sharedDefaults = UserDefaults(suiteName: DNSProxy.appGroup) else {
-            print("Failed to access shared UserDefaults")
+    func getStoredRecords() throws -> [DNSRecord] {
+        guard let defaults = UserDefaults(suiteName: Self.appGroup) else {
+            throw DNSProxyError.sharedDefaultsUnavailable
+        }
+        
+        guard let data = defaults.data(forKey: Self.recordsKey) else {
             return []
         }
         
-        guard let recordsData = sharedDefaults.data(forKey: "enabledOverrideRecords") else {
-            return []
-        }
-        
-        let decoder = PropertyListDecoder()
-        let decodedData = try decoder.decode([[String:String]].self, from: recordsData)
-        
-        return decodedData.compactMap { dict in
+        let decoded = try PropertyListDecoder().decode([[String: String]].self, from: data)
+        return decoded.compactMap { dict in
             guard let id = dict["id"],
                   let destination = dict["destination"],
                   let domain = dict["domain"] else {
@@ -68,37 +59,22 @@ class DNSProxy {
     }
     
     func enableDNSProxy() async throws {
-        
-        
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            NEDNSProxyManager.shared().loadFromPreferences { error in
-                // Ignore load errors - configuration might not exist yet
-                
-                if let error = error {
-                    print("Error loading preferences: \(error)")
-                }
+            NEDNSProxyManager.shared().loadFromPreferences { _ in
                 let manager = NEDNSProxyManager.shared()
                 manager.localizedDescription = "DNS Override"
                 
-                // Configure the DNS proxy provider
                 let providerProtocol = NEDNSProxyProviderProtocol()
                 providerProtocol.providerBundleIdentifier = "xyz.yashyn.NetOverride.netextension"
-                providerProtocol.providerConfiguration = [:] // Empty configuration
+                providerProtocol.providerConfiguration = [:]
                 
                 manager.providerProtocol = providerProtocol
                 manager.isEnabled = true
                 
-                // Important: Set this to true to allow the configuration on demand
-//                if #available(iOS 14.0, *) {
-//                    manager.isOnDemandEnabled = false
-//                }
-                
-                manager.saveToPreferences { saveError in
-                    if let saveError = saveError {
-                        print("❌ Error saving DNS proxy: \(saveError)")
-                        continuation.resume(throwing: saveError)
+                manager.saveToPreferences { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
                     } else {
-                        print("✅ DNS Proxy enabled successfully")
                         continuation.resume()
                     }
                 }
@@ -107,22 +83,20 @@ class DNSProxy {
     }
     
     func disableDNSProxy() async throws {
-        let manager = NEDNSProxyManager.shared()
-        
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            manager.loadFromPreferences { error in
-                if let error = error {
-                    continuation.resume(throwing: error)
+            NEDNSProxyManager.shared().loadFromPreferences { loadError in
+                if let loadError = loadError {
+                    continuation.resume(throwing: loadError)
                     return
                 }
                 
+                let manager = NEDNSProxyManager.shared()
                 manager.isEnabled = false
                 
                 manager.saveToPreferences { saveError in
                     if let saveError = saveError {
                         continuation.resume(throwing: saveError)
                     } else {
-                        print("✅ DNS Proxy disabled successfully")
                         continuation.resume()
                     }
                 }
@@ -131,8 +105,8 @@ class DNSProxy {
     }
 }
 
+// MARK: - Supporting Types
 extension DNSProxy {
-    static let appGroup = "group.xyz.yashyn.NetOverride"
     enum DNSProxyState {
         case enabled
         case disabled
@@ -142,5 +116,16 @@ extension DNSProxy {
         let id: String
         let destination: String
         let domain: String
+    }
+    
+    enum DNSProxyError: LocalizedError {
+        case sharedDefaultsUnavailable
+        
+        var errorDescription: String? {
+            switch self {
+            case .sharedDefaultsUnavailable:
+                return "Unable to access shared storage"
+            }
+        }
     }
 }

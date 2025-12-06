@@ -27,7 +27,7 @@ struct NetOverrideApp: App {
             let existingRecords = try? context.fetch(fetchDescriptor)
             
             if existingRecords?.isEmpty ?? true {
-                let defaultRecord = OverrideRecord(destination: "192.168.88.1", domain: "google.com")
+                let defaultRecord = OverrideRecord(destination: "192.168.88.252", domain: "parasol-router.test")
                 defaultRecord.enabled = true
                 context.insert(defaultRecord)
                 try? context.save()

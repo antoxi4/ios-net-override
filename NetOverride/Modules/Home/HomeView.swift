@@ -84,13 +84,8 @@ struct HomeView: RouteView {
 // MARK: Handlers
 private extension HomeView {
     private func checkProxyStatus() async {
-        do {
-            let state = try await dnsProxyService.getDNSProxyState()
-            
-            isOverrideOn = state == .enabled
-        } catch {
-            print("Failed to check proxy status: \(error)")
-        }
+        let state = await dnsProxyService.getDNSProxyState()
+        isOverrideOn = state == .enabled
     }
     
     private func handleProxyToggle(enabled: Bool) async {
@@ -101,14 +96,14 @@ private extension HomeView {
                 let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
                     .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
                 }
-                try dnsProxyService.storeRecords(records: recordsData)
+                try dnsProxyService.storeRecords(recordsData)
                 
                 try await dnsProxyService.enableDNSProxy()
             } else {
                 try await dnsProxyService.disableDNSProxy()
             }
         } catch {
-            print("Error toggling DNS proxy: \(error)")
+            Logger.error("Error toggling DNS proxy: \(error)")
             // Revert toggle on error
             DispatchQueue.main.async {
                 isOverrideOn = !enabled

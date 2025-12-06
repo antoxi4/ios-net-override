@@ -53,6 +53,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DNSProxy.swift,
+				Logger.swift,
 			);
 			target = AA6731F62EE38D830034BCE4 /* netextension */;
 		};
