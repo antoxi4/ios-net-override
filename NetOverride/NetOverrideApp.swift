@@ -15,7 +15,7 @@ struct NetOverrideApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationStack(path: $appRouter.path) {
+            NavigationStack(path: $appRouter) {
                 HomeView(appRouter: appRouter)
                     .navigationDestination(for: AppRouter.Route.self) { value in
                         appRouter.getCurrentView(route: value)
