@@ -2,13 +2,6 @@
 
 Domain Redirect Guard is a lightweight networking tool that lets you override a domain’s destination IP without touching DNS records.
 
-## Build Status
-
-[![Xcode](https://img.shields.io/badge/Xcode-15.0+-blue.svg)](https://developer.apple.com/xcode/)
-[![iOS](https://img.shields.io/badge/iOS-17.0+-green.svg)](https://www.apple.com/ios/)
-[![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
 ## Prerequisites
 
 Before building and running this project, ensure you have:
