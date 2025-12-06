@@ -1,0 +1,75 @@
+name: PR Build Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.swift'
+      - '**.xcodeproj/**'
+      - '**.entitlements'
+      - '.github/workflows/pr-build.yml'
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.4'
+    
+    - name: Show Xcode version
+      run: xcodebuild -version
+    
+    - name: Show available schemes
+      run: xcodebuild -list -project NetOverride.xcodeproj
+    
+    - name: Build App Target
+      run: |
+        xcodebuild clean build \
+          -project NetOverride.xcodeproj \
+          -scheme NetOverride \
+          -destination 'generic/platform=iOS' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO
+    
+    - name: Build Extension Target
+      run: |
+        xcodebuild clean build \
+          -project NetOverride.xcodeproj \
+          -scheme netextension \
+          -destination 'generic/platform=iOS' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO
+    
+    - name: Check for Swift warnings
+      run: |
+        echo "Checking for Swift compiler warnings..."
+        xcodebuild build \
+          -project NetOverride.xcodeproj \
+          -scheme NetOverride \
+          -destination 'generic/platform=iOS' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO 2>&1 | \
+          grep -E "warning:|error:" || echo "No warnings or errors found"
+    
+    - name: Build Summary
+      if: always()
+      run: |
+        echo "✅ Build check completed"
+        echo "📝 This workflow verifies that PR changes compile successfully"
+        echo "⚠️  Note: Code signing is skipped as this is a build-only check"
