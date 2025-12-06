@@ -49,6 +49,13 @@
 			);
 			target = AA6731F62EE38D830034BCE4 /* netextension */;
 		};
+		AA6732112EE3933E0034BCE4 /* Exceptions for "Services" folder in "netextension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DNSProxy.swift,
+			);
+			target = AA6731F62EE38D830034BCE4 /* netextension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -63,6 +70,14 @@
 				AA6732062EE38D830034BCE4 /* Exceptions for "netextension" folder in "netextension" target */,
 			);
 			path = netextension;
+			sourceTree = "<group>";
+		};
+		AA67320E2EE393370034BCE4 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA6732112EE3933E0034BCE4 /* Exceptions for "Services" folder in "netextension" target */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -89,6 +104,7 @@
 		AA30F1482EDCC7DD000854CD = {
 			isa = PBXGroup;
 			children = (
+				AA67320C2EE393310034BCE4 /* Shared */,
 				AA30F1532EDCC7DD000854CD /* NetOverride */,
 				AA6731FB2EE38D830034BCE4 /* netextension */,
 				AA6731F82EE38D830034BCE4 /* Frameworks */,
@@ -113,6 +129,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		AA67320C2EE393310034BCE4 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				AA67320E2EE393370034BCE4 /* Services */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -132,6 +156,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				AA30F1532EDCC7DD000854CD /* NetOverride */,
+				AA67320E2EE393370034BCE4 /* Services */,
 			);
 			name = NetOverride;
 			packageProductDependencies = (
@@ -375,6 +400,7 @@
 				DEVELOPMENT_TEAM = FJ5RA94W96;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -410,6 +436,7 @@
 				DEVELOPMENT_TEAM = FJ5RA94W96;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

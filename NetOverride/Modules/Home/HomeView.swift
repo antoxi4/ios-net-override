@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import NetworkExtension
 
 struct HomeView: RouteView {
     @ObservedObject var appRouter: AppRouter
@@ -18,6 +19,9 @@ struct HomeView: RouteView {
     @State private var isOverrideOn = false
     @State private var isCreateModalVisible = false
     @State private var editingRecord: OverrideRecord?
+    @State private var showPermissionAlert: Bool = false
+    
+    private let dnsProxyService = DNSProxy()
     
     var body: some View {
         OverrideListView(
@@ -41,6 +45,20 @@ struct HomeView: RouteView {
                     .background(Color("BgPrimary"))
             }
         )
+        .alert(
+            "Action Required",
+            isPresented: $showPermissionAlert,
+            actions: {
+                Button(role: .destructive) {
+                    if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(settingsURL)
+                    }
+                } label: {
+                    Text("Open Settings")
+                }
+            },
+            message: {Text("Go to Settings → General → VPN & Device Management → DNS and toggle ON 'DNS Override' to activate the proxy.\n\nIMPORTANT: Make sure your WiFi is connected.")}
+        )
         .contentMargins(16)
         .scrollIndicators(.hidden)
         .ignoresSafeArea(edges: .bottom)
@@ -50,11 +68,44 @@ struct HomeView: RouteView {
         .toolbarBackground(.visible, for: .navigationBar, .tabBar)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("BgPrimary"))
+        .onAppear {
+            Task {
+                await checkProxyStatus()
+            }
+        }
+        .onChange(of: isOverrideOn) { _, newValue in
+            if newValue {
+                syncRecordsToUserDefaults()
+            }
+        }
     }
 }
 
 // MARK: Handlers
 private extension HomeView {
+    private func checkProxyStatus() async {
+        do {
+            let state = try await dnsProxyService.getDNSProxyState()
+            
+            isOverrideOn = state == .enabled
+        } catch {
+            print("Failed to check proxy status: \(error)")
+        }
+    }
+    
+    private func syncRecordsToUserDefaults() {
+        do {
+            let enabledRecords = records.filter { $0.enabled }
+            let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
+                    .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
+            }
+            
+            try dnsProxyService.storeRecords(records: recordsData)
+        } catch {
+            print(error)
+        }
+    }
+    
     private func showCreateModal() {
         self.isCreateModalVisible = true
     }
