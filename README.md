@@ -39,27 +39,47 @@ The project requires the following capabilities:
    cd ios-net-override
    ```
 
-2. **Open in Xcode**
+2. **Configure App Identifiers** (Automated)
+   
+   Run the setup script to automatically configure all bundle identifiers:
    ```bash
-   open NetOverride.xcodeproj
+   ./setup.sh
    ```
-
-3. **Configure App Identifiers**
+   
+   Enter your base bundle identifier when prompted (e.g., `com.yourname.NetOverride`).
+   The script will automatically update:
+   - `AppConfig.swift`
+   - Project bundle identifiers
+   - Entitlements files with app group
+   
+   <details>
+   <summary>Manual Configuration (Alternative)</summary>
+   
+   If you prefer to configure manually:
    - Open `AppConfig.swift` in the project root
-   - Update the following values with your own identifiers:
+   - Update the following values:
      ```swift
      case appExtensionBundleIdentifier = "your.bundle.id.netextension"
      case appGroupIdentifier = "group.your.bundle.id"
      ```
-   - These must match your Apple Developer account's App IDs and App Groups
+   - Update bundle identifiers in Xcode project settings
+   - Update app group in both entitlements files
+   </details>
 
-4. **Configure code signing**
+3. **Create App Group in Apple Developer Account**
+   - Go to [Apple Developer Account - App Groups](https://developer.apple.com/account/resources/identifiers/list/applicationGroup)
+   - Create a new App Group with the identifier from step 2 (e.g., `group.com.yourname.NetOverride`)
+
+4. **Configure code signing in Xcode**
+   ```bash
+   open NetOverride.xcodeproj
+   ```
    - Select the `NetOverride` project in the navigator
    - For each target (`NetOverride` and `netextension`):
      - Go to "Signing & Capabilities"
      - Select your development team
-     - Update Bundle Identifier to match your Apple Developer account
-     - Ensure App Groups capability matches the identifier in `AppConfig.swift`
+     - Verify bundle identifiers are correct
+     - Ensure App Groups capability shows your app group
      - Ensure provisioning profiles are valid
 
 5. **Build and Run**
