@@ -44,14 +44,25 @@ The project requires the following capabilities:
    open NetOverride.xcodeproj
    ```
 
-3. **Configure code signing**
+3. **Configure App Identifiers**
+   - Open `AppConfig.swift` in the project root
+   - Update the following values with your own identifiers:
+     ```swift
+     case appExtensionBundleIdentifier = "your.bundle.id.netextension"
+     case appGroupIdentifier = "group.your.bundle.id"
+     ```
+   - These must match your Apple Developer account's App IDs and App Groups
+
+4. **Configure code signing**
    - Select the `NetOverride` project in the navigator
    - For each target (`NetOverride` and `netextension`):
      - Go to "Signing & Capabilities"
      - Select your development team
+     - Update Bundle Identifier to match your Apple Developer account
+     - Ensure App Groups capability matches the identifier in `AppConfig.swift`
      - Ensure provisioning profiles are valid
 
-4. **Build and Run**
+5. **Build and Run**
    - Connect your iOS device (network extensions don't work in Simulator)
    - Select your device from the scheme menu
    - Press `⌘R` or click the Run button

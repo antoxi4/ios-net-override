@@ -10,7 +10,7 @@ import NetworkExtension
 
 class DNSProxy {
     // MARK: - Properties
-    private static let appGroup = "group.xyz.yashyn.NetOverride"
+    private static let appGroup = AppConfig.appGroupIdentifier.rawValue
     private static let recordsKey = "enabledOverrideRecords"
     
     // MARK: - Public Methods
@@ -65,7 +65,7 @@ class DNSProxy {
                 manager.localizedDescription = "DNS Override"
                 
                 let providerProtocol = NEDNSProxyProviderProtocol()
-                providerProtocol.providerBundleIdentifier = "xyz.yashyn.NetOverride.netextension"
+                providerProtocol.providerBundleIdentifier = AppConfig.appGroupIdentifier.rawValue
                 
                 manager.providerProtocol = providerProtocol
                 manager.isEnabled = true
