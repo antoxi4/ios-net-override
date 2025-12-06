@@ -17,20 +17,9 @@
 ## Related Issues
 <!-- Link any related issues here -->
 
-Closes #
-Related to #
-
-## Changes Made
-<!-- List the specific changes made in this PR -->
-
-- 
-- 
-- 
-
 ## Testing
-<!-- Describe the testing you've done -->
 
-- [ ] Tested on physical iOS device (iOS version: ___)
+- [ ] Tested on physical iOS device
 - [ ] Verified DNS proxy starts/stops correctly
 
 ## Screenshots/Recordings
