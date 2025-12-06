@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct NetOverrideApp: App {
     @StateObject var appRouter = AppRouter()
+
     
     var body: some Scene {
         WindowGroup {
