@@ -12,6 +12,33 @@ import SwiftData
 struct NetOverrideApp: App {
     @StateObject var appRouter = AppRouter()
     
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            OverrideRecord.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        do {
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            
+            // Add default record if none exist
+            let context = container.mainContext
+            let fetchDescriptor = FetchDescriptor<OverrideRecord>()
+            let existingRecords = try? context.fetch(fetchDescriptor)
+            
+            if existingRecords?.isEmpty ?? true {
+                let defaultRecord = OverrideRecord(destination: "192.168.88.1", domain: "google.com")
+                defaultRecord.enabled = true
+                context.insert(defaultRecord)
+                try? context.save()
+            }
+            
+            return container
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $appRouter.path) {
@@ -20,9 +47,7 @@ struct NetOverrideApp: App {
                         appRouter.getCurrentView(route: value)
                     }
             }
-            .modelContainer(for: [
-                OverrideRecord.self,
-            ])
+            .modelContainer(sharedModelContainer)
         }
     }
 }

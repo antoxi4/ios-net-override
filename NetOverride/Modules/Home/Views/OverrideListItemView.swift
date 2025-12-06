@@ -41,6 +41,7 @@ struct OverrideListItemView: View {
             Toggle("", isOn: $record.enabled)
                 .tint(Color.blue)
                 .fixedSize()
+                .disabled(isOverrideEnabled)
         }
         .padding()
         .foregroundStyle(Color.white)

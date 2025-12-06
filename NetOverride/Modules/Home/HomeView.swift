@@ -74,8 +74,8 @@ struct HomeView: RouteView {
             }
         }
         .onChange(of: isOverrideOn) { _, newValue in
-            if newValue {
-                syncRecordsToUserDefaults()
+            Task {
+                await handleProxyToggle(enabled: newValue)
             }
         }
     }
@@ -93,16 +93,26 @@ private extension HomeView {
         }
     }
     
-    private func syncRecordsToUserDefaults() {
+    private func handleProxyToggle(enabled: Bool) async {
         do {
-            let enabledRecords = records.filter { $0.enabled }
-            let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
+            if enabled {
+                // Store records before enabling
+                let enabledRecords = records.filter { $0.enabled }
+                let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
                     .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
+                }
+                try dnsProxyService.storeRecords(records: recordsData)
+                
+                try await dnsProxyService.enableDNSProxy()
+            } else {
+                try await dnsProxyService.disableDNSProxy()
             }
-            
-            try dnsProxyService.storeRecords(records: recordsData)
         } catch {
-            print(error)
+            print("Error toggling DNS proxy: \(error)")
+            // Revert toggle on error
+            DispatchQueue.main.async {
+                isOverrideOn = !enabled
+            }
         }
     }
     
