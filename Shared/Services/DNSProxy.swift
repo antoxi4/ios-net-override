@@ -65,7 +65,7 @@ class DNSProxy {
                 manager.localizedDescription = "DNS Override"
                 
                 let providerProtocol = NEDNSProxyProviderProtocol()
-                providerProtocol.providerBundleIdentifier = AppConfig.appGroupIdentifier.rawValue
+                providerProtocol.providerBundleIdentifier = AppConfig.appExtensionBundleIdentifier.rawValue
                 
                 manager.providerProtocol = providerProtocol
                 manager.isEnabled = true

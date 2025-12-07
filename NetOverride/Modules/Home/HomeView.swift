@@ -39,6 +39,9 @@ struct HomeView: RouteView {
             item: $editingRecord,
             onDismiss: {
                 editingRecord = nil
+                Task {
+                    await handleRecordsUpdate()
+                }
             },
             content: { record in
                 AddOverrideRecordView(overrideRecord: record)
@@ -71,9 +74,6 @@ struct HomeView: RouteView {
                 await checkProxyStatus()
             }
         }
-        .onChange(of: records) {
-            
-        }
         .onChange(of: isOverrideOn) { _, newValue in
             Task {
                 await handleProxyToggle(enabled: newValue)
@@ -93,11 +93,18 @@ private extension HomeView {
         do {
             let isProxyActive = await dnsProxyService.getDNSProxyState() == .enabled
             
-            if (isProxyActive) {
+            if isProxyActive {
                 isLoading = true
+                defer { isLoading = false }
+                
+                let enabledRecords = records.filter { $0.enabled }
+                let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
+                        .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
+                }
+                try dnsProxyService.storeRecords(recordsData)
+                
                 try await dnsProxyService.disableDNSProxy()
                 try await dnsProxyService.enableDNSProxy()
-                isLoading = false
             }
         } catch {
             isLoading = false
