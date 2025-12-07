@@ -19,7 +19,7 @@ struct HomeView: RouteView {
     @State private var isOverrideOn = false
     @State private var isCreateModalVisible = false
     @State private var editingRecord: OverrideRecord?
-    @State private var showPermissionAlert: Bool = false
+    @State private var isLoading = false
     
     private let dnsProxyService = DNSProxy()
     
@@ -39,25 +39,14 @@ struct HomeView: RouteView {
             item: $editingRecord,
             onDismiss: {
                 editingRecord = nil
+                Task {
+                    await handleRecordsUpdate()
+                }
             },
             content: { record in
                 AddOverrideRecordView(overrideRecord: record)
                     .background(Color("BgPrimary"))
             }
-        )
-        .alert(
-            "Action Required",
-            isPresented: $showPermissionAlert,
-            actions: {
-                Button(role: .destructive) {
-                    if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(settingsURL)
-                    }
-                } label: {
-                    Text("Open Settings")
-                }
-            },
-            message: {Text("Go to Settings → General → VPN & Device Management → DNS and toggle ON 'DNS Override' to activate the proxy.\n\nIMPORTANT: Make sure your WiFi is connected.")}
         )
         .contentMargins(16)
         .scrollIndicators(.hidden)
@@ -68,6 +57,18 @@ struct HomeView: RouteView {
         .toolbarBackground(.visible, for: .navigationBar, .tabBar)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("BgPrimary"))
+        .overlay {
+            if isLoading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                }
+            }
+        }
         .onAppear {
             Task {
                 await checkProxyStatus()
@@ -88,13 +89,39 @@ private extension HomeView {
         isOverrideOn = state == .enabled
     }
     
+    private func handleRecordsUpdate() async {
+        do {
+            let isProxyActive = await dnsProxyService.getDNSProxyState() == .enabled
+            
+            if isProxyActive {
+                isLoading = true
+                defer { isLoading = false }
+                
+                let enabledRecords = records.filter { $0.enabled }
+                let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
+                        .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
+                }
+                try dnsProxyService.storeRecords(recordsData)
+                
+                try await dnsProxyService.disableDNSProxy()
+                try await dnsProxyService.enableDNSProxy()
+            }
+        } catch {
+            isLoading = false
+            Logger.error(error)
+        }
+    }
+    
     private func handleProxyToggle(enabled: Bool) async {
+        isLoading = true
+        defer { isLoading = false }
+        
         do {
             if enabled {
                 // Store records before enabling
                 let enabledRecords = records.filter { $0.enabled }
                 let recordsData: [DNSProxy.DNSRecord] = enabledRecords.map { record in
-                    .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
+                        .init(id: record.id.uuidString, destination: record.destination, domain: record.domain)
                 }
                 try dnsProxyService.storeRecords(recordsData)
                 
